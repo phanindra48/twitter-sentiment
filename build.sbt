@@ -30,8 +30,6 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-streaming-kafka-0-10" % "2.4.0" % "provided",
   "edu.stanford.nlp" % "stanford-corenlp" % "3.5.2" artifacts (Artifact("stanford-corenlp", "models"), Artifact("stanford-corenlp")),
   "org.scalatest" %% "scalatest" % "2.2.6" % "test"
-  //"org.apache.spark" %% "kafka-clients" % "0.11.0.1"
-  //"org.apache.spark" %% "spark-sql-kafka-0-10" % "2.4.1",
 )
 
 assemblyMergeStrategy in assembly := {

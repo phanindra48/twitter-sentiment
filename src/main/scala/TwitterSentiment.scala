@@ -1,12 +1,3 @@
-import org.apache.spark.sql.SparkSession
-import org.apache.spark.sql.functions.window
-import org.apache.spark.sql.functions.lit
-import org.apache.spark.sql.types.StringType
-import org.apache.spark.sql.Dataset
-import org.apache.spark.sql.functions._
-import org.apache.spark.sql.streaming._
-import org.apache.spark.sql.streaming.Trigger._
-
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.streaming.twitter.TwitterUtils
@@ -28,10 +19,7 @@ object TwitterSentiment {
 
 
   def maxLengthSentiment(input: String): (String, Sentiment) = Option(input) match {
-    case Some(text) if !text.isEmpty => {
-      sentiment(text)
-      extractSentiment(text)
-    }
+    case Some(text) if !text.isEmpty => extractSentiment(text)
     case _ => throw new IllegalArgumentException("input can't be null or empty")
   }
 
@@ -123,20 +111,12 @@ object TwitterSentiment {
       System.setProperty("twitter4j.oauth.consumerSecret", consumerSecret)
       System.setProperty("twitter4j.oauth.accessToken", accessToken)
       System.setProperty("twitter4j.oauth.accessTokenSecret", accessTokenSecret)
-
-      //System.setProperty("twitter4j.oauth.consumerKey", "Qwg0x2SpwaV7Bt1blVItBGi97")
-      //System.setProperty("twitter4j.oauth.consumerSecret", "LK469wvA0gQUi5yhu8UpAmMputC4j1k7HA07BQLYXEzdsXdSv7")
-      //System.setProperty("twitter4j.oauth.accessToken", "287057610-Umum96jVUzxzdFzFuZj8XDjynXGq6knZIqODm4dX")
-      //System.setProperty("twitter4j.oauth.accessTokenSecret", "0im6WSXTc68zm6tjWUWxbrVrWikqrsPDxynkaABMkyezQ")
-
     } else {
       // Configure Twitter credentials using twitter.txt
       setupTwitter()
     }
 
     val ssc = new StreamingContext(spark, Seconds(1))
-
-
 
     // Create a DStream from Twitter using our streaming context
     val tweets = TwitterUtils.createStream(ssc, None, Array(filter))
@@ -154,67 +134,9 @@ object TwitterSentiment {
       rdd.unpersist()
     })
 
-    //val statuses = tweets.map(status => status.getText()).map(text => maxLengthSentiment(text))
-
-
-
-
-
-    // Blow out each word into a new DStream
-    //val tweetwords = statuses.flatMap(tweetText => tweetText.split(" ").map(tweetText => tweetText.toLowerCase()))
-
-    //// Map each tweetword to a key/value pair of (tweetword, 1) so we can count them up by adding up the values
-    //val dataChatterKeyValues = tweetwords.map(tweetword => (tweetword, 1))
-    //
-    //// Now count them up over a 7 minute window sliding every two seconds
-    //val dataChatterCounts = dataChatterKeyValues.reduceByKeyAndWindow( _ + _, _ -_, Seconds(420), Seconds(2))
-    //
-    //// Sort the results by the count values
-    //val sortedResults = dataChatterCounts.transform(rdd => rdd.sortBy(x => x._2, false))
-    //
-
-    // Print the top 10
-    //sortedResults.print
-
-    // Set a checkpoint directory, and kick it all off
-    // I could watch this all day!
-
+    // Set checkpoint directory for continous streaming to work
     ssc.checkpoint("../kafka/checkpoint/")
     ssc.start()
     ssc.awaitTermination()
-    /*
-      import spark.implicits._
-
-      val lines = spark
-        .readStream
-        .format("kafka")
-        .option("kafka.bootstrap.servers", "localhost:9092")
-        .option("subscribe", inTopic)
-        .option("failOnDataLoss", "false")
-        .load()
-        .selectExpr("CAST(value AS STRING)")
-        .as[String]
-
-      val wordCounts = lines.flatMap(_.split(" ")).groupBy("value").count().toDF("key", "value")
-
-      val query_console = wordCounts.writeStream
-        .outputMode("complete")
-        .format("console")
-        .start()
-
-      val query = wordCounts
-        .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
-        .writeStream
-        .format("kafka")
-        .outputMode("complete")
-        .option("kafka.bootstrap.servers", "localhost:9092")
-        .option("topic", outTopic)
-        .option("startingOffsets", "earliest")
-        .option("checkpointLocation", "src/main/kafkaUpdateSink/chkpoint")
-        .start()
-
-      query.awaitTermination()
-      query_console.awaitTermination()
-     */
   }
 }
