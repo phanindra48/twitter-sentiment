@@ -25,7 +25,7 @@ libraryDependencies ++= Seq(
   //"org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion,
   "org.apache.spark" %% "spark-sql-kafka-0-10" % "2.4.0" % "provided",
   //"org.apache.kafka" %% "kafka-clients" % "2.4.0",
-  "org.apache.bahir" %% "spark-streaming-twitter" % "2.2.0",
+  "org.apache.bahir" %% "spark-streaming-twitter" % "2.3.2",
   "org.apache.spark" %% "spark-streaming" % "2.4.0" % "provided",
   "org.apache.spark" %% "spark-streaming-kafka-0-10" % "2.4.0" % "provided",
   "edu.stanford.nlp" % "stanford-corenlp" % "3.5.2" artifacts (Artifact("stanford-corenlp", "models"), Artifact("stanford-corenlp")),
