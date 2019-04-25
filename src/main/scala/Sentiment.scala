@@ -1,6 +1,10 @@
 object Sentiment extends Enumeration {
   type Sentiment = Value
-  val POSITIVE, NEGATIVE, NEUTRAL = Value
+  //val POSITIVE, NEGATIVE, NEUTRAL = Value
+
+  val NEUTRAL = Value("NEUTRAL")
+  val POSITIVE = Value("POSITIVE")
+  val NEGATIVE = Value("NEGATIVE")
 
   def toSentiment(sentiment: Int): Sentiment = sentiment match {
     case x if x == 0 || x == 1 => Sentiment.NEGATIVE
