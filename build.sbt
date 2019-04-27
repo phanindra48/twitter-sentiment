@@ -20,6 +20,7 @@ lazy val root = (project in file(".")).
 
 
 libraryDependencies ++= Seq(
+  "org.apache.spark" %% "spark-mllib" % "2.4.0",
   "org.scala-lang" % "scala-library" % "2.11.12" % "provided",
   "org.apache.spark" %% "spark-sql" % "2.4.0" % "provided",
   //"org.apache.spark" %% "spark-sql-kafka-0-10" % sparkVersion,
@@ -29,6 +30,7 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-streaming" % "2.4.0" % "provided",
   "org.apache.spark" %% "spark-streaming-kafka-0-10" % "2.4.0" % "provided",
   "edu.stanford.nlp" % "stanford-corenlp" % "3.5.2" artifacts (Artifact("stanford-corenlp", "models"), Artifact("stanford-corenlp")),
+
   "org.scalatest" %% "scalatest" % "2.2.6" % "test"
 )
 

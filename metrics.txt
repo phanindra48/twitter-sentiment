@@ -1,0 +1,36 @@
+
+Confusion Matrix
+1823.0  4.0   0.0   
+577.0   53.0  9.0   
+401.0   3.0   60.0  
+
+Overall Statistics
+Summary Statistics
+Accuracy = 0.6607508532423209
+
+Precision by label
+Precision(0.0) = 0.6508389860764013
+Precision(1.0) = 0.8833333333333333
+Precision(2.0) = 0.8695652173913043
+Recall by label
+Recall(0.0) = 0.9978106185002736
+Recall(1.0) = 0.08294209702660407
+Recall(2.0) = 0.12931034482758622
+False positive rate by label
+FPR(0.0) = 0.886672710788758
+FPR(1.0) = 0.0030554343081623746
+FPR(2.0) = 0.0036496350364963502
+
+F-measure by label
+F1-Score(0.0) = 0.7878133102852204/nF1-Score(1.0) = 0.15164520743919885/nF1-Score(2.0) = 0.225140712945591
+
+F1-Score(0.0) = 0.7878133102852204
+F1-Score(1.0) = 0.15164520743919885
+F1-Score(2.0) = 0.225140712945591
+
+Weighted Stats
+Weighted precision: 0.736181258850222
+Weighted recall: 0.6607508532423207
+Weighted F1 score: 0.559966380973208
+Weighted false positive rate: 0.5541286333757375
+      
