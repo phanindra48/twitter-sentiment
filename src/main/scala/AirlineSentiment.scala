@@ -1,16 +1,10 @@
-import org.apache.spark.SparkConf
-import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.ml.feature._
 import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
-import java.util.Properties
 
-import scala.collection.convert.wrapAll._
-import Sentiment.Sentiment
-import org.apache.spark.ml.{Pipeline, PipelineStage}
+import org.apache.spark.ml.{Pipeline}
 import org.apache.spark.ml.classification._
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
-import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{Row, SparkSession}
 
 object AirlineSentiment {
@@ -68,23 +62,26 @@ object AirlineSentiment {
     //val spark = new SparkConf().setAppName("AirlineTweets").setMaster("local[*]")
 
     val spark = SparkSession.builder
-      .master("local")
+      //.master("local")
       .appName("Airline Tweets Sentiment Analysis")
       .getOrCreate
 
     import spark.implicits._
 
-    //if (args.length < 2) {
-    //  System.err.println("Correct usage: Program_Name inputPath outputPath")
-    //  System.exit(1)
-    //}
+    if (args.length < 2) {
+      System.err.println("Correct usage: Program_Name inputPath outputPath")
+      System.exit(1)
+    }
 
     // Get rid of log spam (should be called after the context is set up)
     setupLogging()
 
     val inputPath = args(0)
     val outputPath = args(1)
+    println("inputPath: " + inputPath)
+    println("outputPath: " + outputPath)
 
+    println("Loading input file")
     val rawDF = spark.read
       .format("csv")
       .option("header", "true") // first line in file has headers
@@ -102,24 +99,30 @@ object AirlineSentiment {
 
     /* Preprocessing steps */
     // 1. tokenizer
+    println("Running Tokenizer")
     val tokenizer = new Tokenizer().setInputCol("text").setOutputCol("words")
 
     // 2. Stopwords removal
+    println("Running StopwordRemover")
     val stopWordRemover = new StopWordsRemover().setInputCol(tokenizer.getOutputCol).setOutputCol("filtered")
 
     // 3. Hashing Term Frequency
+    println("Running HashingTF")
     val hashingTF = new HashingTF().setInputCol(stopWordRemover.getOutputCol).setOutputCol("features")
 
     // 4. Encode sentiment column
+    println("Running Indexer")
     val strIndexer = new StringIndexer().setInputCol("airline_sentiment").setOutputCol(labelCol)
 
     // algorithm
+    println("Generating CV")
     val crossVal = generateCVForLR(tokenizer, stopWordRemover, hashingTF, strIndexer)
     //val crossVal = generateCVForNB(tokenizer, stopWordRemover, hashingTF, strIndexer)
 
     val Array(trainingDF, testDF) = tweetsDF.randomSplit(Array(trainPer, (1 - trainPer)))
 
     // Run cross-validation, and choose the best set of parameters.
+    println("Generating Model")
     val model = crossVal.fit(trainingDF)
 
     val result = model.transform(testDF)
@@ -196,12 +199,12 @@ object AirlineSentiment {
          |Weighted F1 score: ${metrics.weightedFMeasure}
          |Weighted false positive rate: ${metrics.weightedFalsePositiveRate}
       """.stripMargin
-    print(metricsStr)
+    println(metricsStr)
 
-    import java.nio.file.{Paths, Files}
-    import java.nio.charset.StandardCharsets
+    // Save output to file
+    println("Saving output to file: " + outputPath)
 
-    Files.write(Paths.get(outputPath), metricsStr.getBytes(StandardCharsets.UTF_8))
+    spark.sparkContext.parallelize(List(metricsStr)).coalesce(1, shuffle = true).saveAsTextFile(outputPath)
   }
 }
 
